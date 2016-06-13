@@ -1,21 +1,23 @@
+from connectors import sqldb
 from sqlalchemy import text
 import pandas as pd
 
-class ExtractFromDB:
+class FromDB:
     """
     Runs queries against a database.
     
     Args:
-        connector (string): The name of the connector class.
+        connector (instance): An instance of the connector class.
         db (string): The database credential in the .env file.
         
     Attributes:
-        connector (object): An instance of the connector class.
+        connector (object): An SQLAlchemy engine object.
         engine (object): The sqlalchemy engine object for running queries.
     """
-    def __init__(self, connector, db='DW'):
+    def __init__(self, connector):
         # load the database engine       
-        self.engine = getattr(sqldb,connector)(db).engine
+        self.engine = connector.engine
+        self.data = pd.DataFrame()
 
     def RunQuery(self, sqlquery, to_csv=False, filename=''):
         """
