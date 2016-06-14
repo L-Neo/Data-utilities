@@ -1,3 +1,25 @@
+#! /usr/bin/env python3
+#
+# Python3 Version -- lucasneosr@gmail.com
+#
+# Mixpanel, Inc. -- http://mixpanel.com/
+#
+# Python API client library to consume mixpanel.com analytics data.
+#
+# Copyright 2010-2013 Mixpanel, Inc
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 import json
 import os
 from dotenv import load_dotenv, find_dotenv
@@ -6,10 +28,11 @@ from base64 import b64encode
 
 class Mixpanel:
     """
-    Usese the Mixpanel API to export raw data. Adapted for Python3.5 from the Mixpanel python module.
+    Uses the Mixpanel API to export raw data. Adapted for Python3.5 from the Mixpanel python module.
     
     Args:
         projectname (string): The name of the Mixpanel project.
+
     Attributes:
         api_secret (string): the key of the mixpanel project.
     """
@@ -31,6 +54,9 @@ class Mixpanel:
             Methods (list): List of resource names for constructing the request URL. 
                             e.g. ['events','properties'] gives https://mixpanel.com/api/2.0/events/properties/values
             params (dictionary): A dictionary with the extra parameters associated with the API method.
+
+        Returns:
+            data (newline delimited json): this should be stored in a file and parsed as it consists of lines of json.
         """
         
         # create the base URL string
@@ -55,7 +81,7 @@ class Mixpanel:
         response = request.urlopen(requester, timeout=120)
         
         # encode bytes into strings
-        data = response.read().decode()
+        data = response.read().decode('utf-8')
         return data
         
     def unicode_urlencode(self, params):
