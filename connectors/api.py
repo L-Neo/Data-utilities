@@ -1,25 +1,3 @@
-#! /usr/bin/env python3
-#
-# Python3 Version -- lucasneosr@gmail.com
-#
-# Mixpanel, Inc. -- http://mixpanel.com/
-#
-# Python API client library to consume mixpanel.com analytics data.
-#
-# Copyright 2010-2013 Mixpanel, Inc
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
 import json
 import os
 import requests
@@ -28,6 +6,10 @@ from urllib import request, parse
 from base64 import b64encode
 from datetime import datetime, timedelta
 from dateutil.parser import *
+from simple_salesforce import Salesforce as sf
+
+# load environment variables
+load_dotenv(find_dotenv())
 
 class Mixpanel:
     """
@@ -46,7 +28,6 @@ class Mixpanel:
     
     def __init__(self, projectname):
         # load environment variables and store the api secret
-        load_dotenv(find_dotenv(usecwd=True))
         self.api_secret = os.environ[projectname.upper() + '_MIXPANEL_SECRET']
         
     def request(self, methods, params, http_method='GET', format = 'json'):
@@ -122,8 +103,6 @@ class Zendesk:
         token (string): API token.
     """
     def __init__(self):
-        # load environment variables
-        load_dotenv(find_dotenv())
         subdomain = os.environ['ZENDESK_SUBDOMAIN']
 
         self.endpoint = 'https://{subdomain}.zendesk.com/api/v2/'.format(subdomain=subdomain)
@@ -168,3 +147,17 @@ class Zendesk:
         response = requests.get(request_url, auth=auth)
 
         return response.text
+
+class Salesforce:
+    """
+    Salesforce connector which uses simple_salesforce package.
+
+    Attributes:
+        session (login object): A Salesforce session is created.
+    """
+    def __init__(self):
+        self.session = sf(
+            username = os.environ['SF_USER'],
+            password = os.environ['SF_PW'],
+            security_token = os.environ['SF_TOKEN']
+        )
