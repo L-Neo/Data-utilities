@@ -22,9 +22,12 @@
 
 import json
 import os
+import requests
 from dotenv import load_dotenv, find_dotenv
 from urllib import request, parse
 from base64 import b64encode
+from datetime import datetime, timedelta
+from dateutil.parser import *
 
 class Mixpanel:
     """
@@ -108,3 +111,60 @@ class Mixpanel:
             [(k, isinstance(v, str) and v.encode('utf-8') or v) for k, v in params]
         )
         return result
+
+class Zendesk:
+    """
+    Implementation of the Zendesk  API to export raw data.
+
+    Attributes:
+        endpoint (string): The Zendesk parent API endpoint.
+        email (string): Email account used which has an API token.
+        token (string): API token.
+    """
+    def __init__(self):
+        # load environment variables
+        load_dotenv(find_dotenv())
+        subdomain = os.environ['ZENDESK_SUBDOMAIN']
+
+        self.endpoint = 'https://{subdomain}.zendesk.com/api/v2/'.format(subdomain=subdomain)
+        self.email = os.environ['ZENDESK_EMAIL']
+        self.token = os.environ['ZENDESK_TOKEN']
+
+    def request_incremental(self, start_time=None):
+        """
+        Requests for data from the incremental exporter.
+
+        Args:
+            start_time (string): A string datetime which specfies the date to pull data from.
+                                 start_time must be more than 5 minutes old.
+                                 The default is 1 days worth of data.
+
+        Returns:
+            response (string): Request response string.
+        """
+
+        # parse start_time as a datetime
+        start_time = parse(str(start_time)) if start_time is not None else datetime.today() - timedelta(days=1)
+
+        # ensure that the start_time adheres to the rate limit
+        time_limit = datetime.now() - timedelta(minutes=5)
+
+        if start_time < time_limit:
+            # calculate time offset from utc
+            offset = (datetime.utcnow() - datetime.now()).total_seconds()
+
+            # convert start time to utc epoch
+            start_time = int((start_time - datetime(1970,1,1)).total_seconds() + offset)
+
+        else:
+            raise ValueError('Start time must be more than 5 minutes old.')
+
+        # construct request url
+        incremental_url = 'incremental/tickets.json/?start_time={datetime}'.format(datetime=start_time)
+        request_url = self.endpoint + incremental_url
+
+        # run the request
+        auth = requests.auth.HTTPBasicAuth(self.email+'/token', self.token)
+        response = requests.get(request_url, auth=auth)
+
+        return response.text
