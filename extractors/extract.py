@@ -59,7 +59,7 @@ class FromMixpanelRaw:
         to_date (string): The end date (YYYY-MM-DD) for extracting data (inclusive).
 
     Attributes:
-        response (http response): The response object returned by the server.
+        response (str): The response string returned by the server.
 
     """
     def __init__(self, projectname, from_date, to_date):
@@ -67,7 +67,7 @@ class FromMixpanelRaw:
         from_date = datetime.strptime(from_date, '%Y-%m-%d').date()
         to_date = datetime.strptime(to_date, '%Y-%m-%d').date()
 
-        # save the response object
+        # save the response text
         self.response = api.Mixpanel(projectname).request(
             methods = ['export'],
             params = {'from_date':from_date, 'to_date': to_date})
