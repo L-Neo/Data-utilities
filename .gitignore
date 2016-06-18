@@ -91,3 +91,4 @@ ENV/
 
 # Other files
 .DS_Store
+*.csv
