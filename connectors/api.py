@@ -75,7 +75,7 @@ class Zendesk:
         self.email = os.environ['ZENDESK_EMAIL']
         self.token = os.environ['ZENDESK_TOKEN']
 
-    def request_incremental(self, start_time=None):
+    def request_incremental(self, start_time=None, resource='tickets', sideload=[]):
         """
         Requests for data from the incremental exporter.
 
@@ -83,6 +83,8 @@ class Zendesk:
             start_time (string): A string datetime which specfies the date to pull data from.
                                  start_time must be more than 5 minutes old.
                                  The default is 1 days worth of data.
+            resource (string): Incremental export resource can be tickets, users, or organization.
+            sideload (list): A list of additional resources to load together with the incremental export.
 
         Returns:
             response (string): Request response string.
@@ -103,13 +105,24 @@ class Zendesk:
         else:
             raise ValueError('Start time must be more than 5 minutes old.')
 
+        # ensure that the resource is valid
+        if resource not in ['tickets','users','organization']:
+            raise ValueError('Resource must either be tickets, users, or organization.')
+
         # construct request url
-        incremental_url = 'incremental/tickets.json/?start_time={datetime}'.format(datetime=start_time)
+        incremental_url = 'incremental/{resource}.json/?start_time={datetime}'.format(resource=resource,
+                                                                                      datetime=start_time)
         request_url = self.endpoint + incremental_url
+
+        # construct the side load params
+        if isinstance(sideload, list):
+            params = {'include': ','.join(sideload)}
+        else:
+            raise ValueError('Sideload argument was not passed a list.')
 
         # run the request
         auth = requests.auth.HTTPBasicAuth(self.email+'/token', self.token)
-        response = requests.get(request_url, auth=auth)
+        response = requests.get(request_url, params=params, auth=auth)
 
         return response.text
 
