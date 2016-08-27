@@ -7,7 +7,7 @@ class FromDB:
     Runs queries against a database.
 
     Args:
-        connector (instance): An instance of the connector class.
+        db_type (string): The type of database e.g. postgres.
         db (string): The database credential in the .env file.
 
     Attributes:
