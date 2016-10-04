@@ -1,4 +1,4 @@
-from data_utils.connectors import sqldb, api
+from data_utils import connect_api
 from datetime import datetime
 import pandas as pd
 import tempfile as tp
