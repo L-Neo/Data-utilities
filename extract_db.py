@@ -12,12 +12,10 @@ class FromDB:
     Args:
         db_type (string): The type of database e.g. postgres.
         db (string): The database credential in the .env file.
-        requires_tunnel (bool): The truth value for whether a ssh tunnel is required.
 
     Attributes:
         connector (object): An SQLAlchemy engine object.
         engine (object): The sqlalchemy engine object for running queries.
-        sshtunnel (SSH tunnel forwarder): The SSH tunnel forwarder connection string.
     """
     def __init__(self, db_type, db):
         self.engine = DB(db_type, db).engine
